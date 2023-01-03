@@ -1,0 +1,20 @@
+version: "3.9" 
+networks:
+  sparql:
+    driver: bridge
+services:
+  registry:
+    build: https://github.com/netwerk-digitaal-erfgoed/dataset-register.git
+    image: dataset-register
+    ports:
+      - "3000:3000"
+    networks:
+      - home
+  graphdb:
+    image: docker-registry.ontotext.com/graphdb-free:9.6.0-adoptopenjdk11
+    ports:
+      - "7200:7200"
+    volumes:
+      - "$PWD/data/graphdb:/data"
+    networks:
+      - home
