@@ -3,18 +3,51 @@ networks:
   sparql:
     driver: bridge
 services:
+  # ------------------------------------------------------------
+  # Community Solid Server
+  # ------------------------------------------------------------
+  solid-css:
+    container_name: css
+    image: solidproject/community-server:latest
+    build: https://github.com/CommunitySolidServer/CommunitySolidServer.git#main
+
+    ports:
+      - "3001:3001"
+
+    environment:
+      - CSS_LOGGING_LEVEL=debug
+      - CSS_PORT=3001
+
+    volumes:
+      # ---- Format: ----
+      - $PWD/data/solid:/data
+
+    networks:
+      - home
+
   registry:
-    build: https://github.com/netwerk-digitaal-erfgoed/dataset-register.git
+    build: https://github.com/netwerk-digitaal-erfgoed/dataset-register.git#main
     image: dataset-register
+    depends_on:
+      - graphdb
     ports:
       - "3000:3000"
+    environment:
+       - GRAPHDB_URL=http://graphdb:7200
     networks:
       - home
   graphdb:
-    image: docker-registry.ontotext.com/graphdb-free:9.6.0-adoptopenjdk11
+    image: khaller/graphdb-free:10.0.0
     ports:
       - "7200:7200"
     volumes:
       - "$PWD/data/graphdb:/data"
     networks:
       - home
+
+################################################################################
+# NETWORK
+################################################################################
+networks:
+  home:
+    driver: bridge
